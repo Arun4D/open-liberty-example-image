@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openliberty-deployment
+  labels:
+    app: openliberty-app
+spec:
+  replicas: 2  # Number of application instances
+  selector:
+    matchLabels:
+      app: openliberty-app
+  template:
+    metadata:
+      labels:
+        app: openliberty-app
+    spec:
+      containers:
+      - name: openliberty-container
+        image: my-openliberty-app:latest  # Replace with your Docker image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 9080  # HTTP port exposed by the container
+        - containerPort: 9443  # HTTPS port exposed by the container
+        env:
+        - name: HTTP_HOST
+          value: "0.0.0.0"
+        - name: HTTP_PORT
+          value: "9080"
+        - name: HTTPS_PORT
+          value: "9443"
+        - name: APP_LOCATION
+          value: "io.openliberty.sample.getting.started.war"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+
